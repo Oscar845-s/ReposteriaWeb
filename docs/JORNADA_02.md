@@ -280,3 +280,59 @@ No ejecutar el commit hasta haber implementado y verificado los cambios.
 ## 9. Próxima jornada
 
 Jornada 03: implementar el catálogo con productos de ejemplo, tarjetas reutilizables, imágenes, precios, categorías y filtros. Más adelante se sustituirán los datos de ejemplo por consultas al backend y SQL Server.
+
+## 10. Corrección de errores durante la implementación
+
+### Problema encontrado
+
+La aplicación mostraba una pantalla en blanco debido a
+errores durante la ejecución de los componentes y sus dependencias.
+
+### Causas identificadas
+
+- Lucide React no estaba instalado, aunque Header.jsx
+  intentaba importar sus iconos.
+- Las dependencias de Tailwind CSS no estaban correctamente
+  registradas en package.json.
+
+### Soluciones aplicadas
+
+- Instalación de lucide-react.
+- Instalación de tailwindcss.
+- Instalación de @tailwindcss/vite.
+- Limpieza de la caché de Vite.
+- Verificación del funcionamiento de React Router.
+- Ajuste de los estilos globales.
+
+### Resultado
+
+La aplicación volvió a renderizar correctamente.
+Se verificó el encabezado, la página principal,
+los iconos y los estilos.
+
+## 11. Corrección de configuración de rutas
+
+### Problema
+
+Las rutas de navegación no funcionaban porque
+App.jsx no tenía configurada correctamente
+la estructura de React Router.
+
+### Solución
+
+Se implementaron los componentes Routes y Route.
+
+Se configuraron las siguientes rutas:
+
+- / : Inicio
+- /catalogo : Catálogo
+- /carrito : Carrito
+- /login : Inicio de sesión
+- : Página no encontrada
+
+También se integró MainLayout mediante Outlet.
+
+### Resultados
+
+La navegación entre las páginas funciona
+correctamente sin recargar toda la aplicación.
