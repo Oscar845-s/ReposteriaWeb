@@ -1,14 +1,13 @@
-
-// Nombre: Oscar Armando Medina Gutiérrez
-// Materia: Verificación y Validación de Software
+// Nombre: Oscar Armando Medina Gutiérrez// Materia: Verificación y Validación de Software
 // Programa: DetalleProducto.jsx
 // Descripción: Muestra la información detallada de un producto.
-// Requerimiento: RF04 / CU-06
-// Fecha: 14 de noviembre de 2026
+// Requerimiento: RF04, RF05 / CU-06, CU-07
+// Fecha: 16 de noviembre de 2026
 
 // ===== Importaciones =====
 import { useEffect, useRef, useState } from 'react';
 import { X, Plus, Minus, ShoppingCart } from 'lucide-react';
+import { useCarrito } from '../hooks/useCarrito';
 
 // ===== Constantes =====
 const CANTIDAD_MINIMA = 1;
@@ -28,13 +27,20 @@ const FORMATO_MONEDA = new Intl.NumberFormat('es-MX', {
 function DetalleProducto({ producto, cerrarDetalle }) {
   const dialogo = useRef(null);
 
-  const hayExistencias = producto.stock > 0;
+  const { detalles, agregarAlCarrito } = useCarrito();
+  const cantidadEnCarrito = detalles.find(
+    item => item.idProducto === producto.id
+  )?.cantidad ?? 0;
+  const disponibles = Math.max(0, producto.stock - cantidadEnCarrito);
+  const hayExistencias = disponibles > 0;
 
-  const [cantidad, setCantidad] = useState(
-    hayExistencias ? CANTIDAD_MINIMA : 0
+  const [cantidadElegida, setCantidad] = useState(
+    CANTIDAD_MINIMA
   );
 
   const [hayErrorImagen, setHayErrorImagen] = useState(false);
+
+  const cantidad = Math.min(cantidadElegida, disponibles);
 
   // Importe de referencia según la cantidad seleccionada.
   const subtotal = producto.precio * cantidad;
@@ -60,8 +66,8 @@ function DetalleProducto({ producto, cerrarDetalle }) {
    * Devuelve: ningún valor.
    */
   function aumentarCantidad() {
-    setCantidad(cantidadActual =>
-      Math.min(cantidadActual + 1, producto.stock)
+    setCantidad(() =>
+      Math.min(cantidad + 1, disponibles)
     );
   }
 
@@ -71,8 +77,8 @@ function DetalleProducto({ producto, cerrarDetalle }) {
    * Devuelve: ningún valor.
    */
   function disminuirCantidad() {
-    setCantidad(cantidadActual =>
-      Math.max(cantidadActual - 1, CANTIDAD_MINIMA)
+    setCantidad(() =>
+      Math.max(cantidad - 1, CANTIDAD_MINIMA)
     );
   }
 
@@ -84,6 +90,15 @@ function DetalleProducto({ producto, cerrarDetalle }) {
   function cancelarDetalle(evento) {
     evento.preventDefault();
     cerrarDetalle();
+  }
+
+  // Agrega la cantidad seleccionada; el reducer vuelve a validar el inventario.
+  function agregarSeleccion() {
+    if (cantidad < 1 || cantidad > disponibles) {
+      return;
+    }
+    agregarAlCarrito(producto.id, cantidad);
+    setCantidad(CANTIDAD_MINIMA);
   }
 
   return (
@@ -160,9 +175,10 @@ function DetalleProducto({ producto, cerrarDetalle }) {
               }
             >
               {hayExistencias
-                ? `Disponibles: ${producto.stock} unidades`
-                : 'Producto agotado'}
+                ? `Disponibles para agregar: ${disponibles} unidades`
+                : producto.stock === 0 ? 'Producto agotado' : 'Límite en carrito'}
             </p>
+            <p aria-live="polite" className="text-sm text-stone-600">En carrito: {cantidadEnCarrito}</p>
 
             {/* Selector de cantidad */}
             <div>
@@ -192,7 +208,7 @@ function DetalleProducto({ producto, cerrarDetalle }) {
                 <button
                   type="button"
                   onClick={aumentarCantidad}
-                  disabled={!hayExistencias || cantidad >= producto.stock}
+                  disabled={!hayExistencias || cantidad >= disponibles}
                   aria-label="Aumentar cantidad"
                   className="rounded-lg border border-rose-200
                     p-2 hover:bg-rose-100
@@ -217,18 +233,19 @@ function DetalleProducto({ producto, cerrarDetalle }) {
               </p>
             </div>
 
-            {/* RF05: se implementará en la jornada del carrito */}
+            {/* RF05: agregar unidades adicionales */}
             <button
               type="button"
-              disabled
+              disabled={!hayExistencias || cantidad < 1}
+              onClick={agregarSeleccion}
               className="flex items-center justify-center gap-2
-                w-full rounded-lg bg-rose-200 py-3
-                text-rose-900 cursor-not-allowed"
+                w-full rounded-lg bg-rose-700 py-3 text-white
+                hover:bg-rose-800 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <ShoppingCart size={20} />
               {hayExistencias
-                ? 'Agregar al carrito (próximamente)'
-                : 'Producto agotado'}
+                ? 'Agregar al carrito'
+                : producto.stock === 0 ? 'Producto agotado' : 'Límite en carrito'}
             </button>
           </div>
         </div>
