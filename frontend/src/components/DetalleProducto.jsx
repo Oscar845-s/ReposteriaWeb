@@ -2,11 +2,13 @@
 // Programa: DetalleProducto.jsx
 // Descripción: Muestra la información detallada de un producto.
 // Requerimiento: RF04, RF05 / CU-06, CU-07
-// Fecha: 16 de noviembre de 2026
+// Fecha: 19 de noviembre de 2026
 
 // ===== Importaciones =====
 import { useEffect, useRef, useState } from 'react';
 import { X, Plus, Minus, ShoppingCart } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
+import { ROLES } from '../data/usuariosDemo';
 import { useCarrito } from '../hooks/useCarrito';
 
 // ===== Constantes =====
@@ -28,6 +30,8 @@ function DetalleProducto({ producto, cerrarDetalle }) {
   const dialogo = useRef(null);
 
   const { detalles, agregarAlCarrito } = useCarrito();
+  const { usuario } = useAuth();
+  const puedeComprar = usuario?.rol === ROLES.CLIENTE;
   const cantidadEnCarrito = detalles.find(
     item => item.idProducto === producto.id
   )?.cantidad ?? 0;
@@ -234,7 +238,8 @@ function DetalleProducto({ producto, cerrarDetalle }) {
             </div>
 
             {/* RF05: agregar unidades adicionales */}
-            <button
+            {puedeComprar ? (
+<button
               type="button"
               disabled={!hayExistencias || cantidad < 1}
               onClick={agregarSeleccion}
@@ -247,6 +252,11 @@ function DetalleProducto({ producto, cerrarDetalle }) {
                 ? 'Agregar al carrito'
                 : producto.stock === 0 ? 'Producto agotado' : 'Límite en carrito'}
             </button>
+) : (
+<p className="text-sm text-rose-700" role="status">
+          {usuario ? 'Solo los clientes pueden comprar.' : 'Inicia sesión para agregar productos.'}
+        </p>
+)}
           </div>
         </div>
       </div>

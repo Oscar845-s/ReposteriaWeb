@@ -2,11 +2,13 @@
 // Programa: ProductCard.jsx
 // Descripción: Presenta el producto y permite agregar una unidad al carrito.
 // Requerimiento: RF03, RF04, RF05
-// Fecha: 16 de noviembre de 2026
+// Fecha: 19 de noviembre de 2026
 
 // ===== Importaciones =====
 import { useState } from 'react';
 import { Eye } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
+import { ROLES } from '../data/usuariosDemo';
 import { useCarrito } from '../hooks/useCarrito';
 
 // ===== Constantes =====
@@ -19,6 +21,8 @@ const FORMATO_MONEDA = new Intl.NumberFormat('es-MX', {
 export default function ProductCard({ product, abrirDetalle }) {
   const [hayErrorImagen, setHayErrorImagen] = useState(false);
   const { detalles, agregarAlCarrito } = useCarrito();
+  const { usuario } = useAuth();
+  const puedeComprar = usuario?.rol === ROLES.CLIENTE;
   const cantidadEnCarrito = detalles.find(item => item.idProducto === product.id)?.cantidad ?? 0;
   const hayExistencias = product.stock > 0;
   const disponibles = Math.max(0, product.stock - cantidadEnCarrito);
@@ -45,13 +49,19 @@ export default function ProductCard({ product, abrirDetalle }) {
             border-rose-600 text-rose-700 py-2 hover:bg-rose-50">
           <Eye size={18} /> Ver detalle
         </button>
-        <button type="button" disabled={!sePuedeAgregar}
+        {puedeComprar ? (
+<button type="button" disabled={!sePuedeAgregar}
           onClick={() => agregarAlCarrito(product.id)}
           className="w-full rounded-lg bg-rose-700 text-white py-2
             hover:bg-rose-800 disabled:opacity-50 disabled:cursor-not-allowed">
           {!hayExistencias ? 'Producto agotado' : sePuedeAgregar
             ? 'Agregar al carrito' : 'Límite en carrito'}
         </button>
+) : (
+<p className="text-sm text-rose-700" role="status">
+          {usuario ? 'Solo los clientes pueden comprar.' : 'Inicia sesión para agregar productos.'}
+        </p>
+)}
       </div>
     </article>
   );

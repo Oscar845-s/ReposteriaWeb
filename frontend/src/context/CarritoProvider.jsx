@@ -3,7 +3,7 @@
 // Programa: CarritoProvider.jsx
 // Descripción: Centraliza las operaciones y el estado del carrito.
 // Requerimiento: RF05, RF06, RF07
-// Fecha: 16 de noviembre de 2026
+// Fecha: 19 de noviembre de 2026
 
 // ===== Importaciones =====
 import { useReducer, useEffect, useState } from 'react';
@@ -48,14 +48,14 @@ function reducirCarrito(estado, accion) {
 }
 
 // Recibe los componentes hijos; devuelve el proveedor con estado compartido.
-export default function CarritoProvider({ children }) {
+export default function CarritoProvider({ children, correo }) {
   const [estado, dispatch] = useReducer(reducirCarrito, null, () => ({
-    items: cargarCarrito(), mensaje: '',
+    items: cargarCarrito(correo), mensaje: '',
   }));
   const [hayErrorGuardado, setHayErrorGuardado] = useState(false);
   useEffect(() => {
-    setHayErrorGuardado(!guardarCarrito(estado.items));
-  }, [estado.items]);
+    setHayErrorGuardado(!guardarCarrito(estado.items, correo));
+  }, [estado.items, correo]);
 
   const detalles = obtenerDetalles(estado.items);
   const total = detalles.reduce((suma, item) => suma + item.subtotal, 0);
@@ -64,11 +64,11 @@ export default function CarritoProvider({ children }) {
   const valor = {
     detalles, total, cantidadTotal, mensaje: estado.mensaje, hayErrorGuardado,
     agregarAlCarrito: (idProducto, cantidad = 1) =>
-      dispatch({ tipo: 'AGREGAR', idProducto, cantidad }),
+      correo && dispatch({ tipo: 'AGREGAR', idProducto, cantidad }),
     modificarCantidad: (idProducto, cantidad) =>
-      dispatch({ tipo: 'MODIFICAR', idProducto, cantidad }),
-    eliminarProducto: idProducto => dispatch({ tipo: 'ELIMINAR', idProducto }),
-    vaciarCarrito: () => dispatch({ tipo: 'VACIAR' }),
+      correo && dispatch({ tipo: 'MODIFICAR', idProducto, cantidad }),
+    eliminarProducto: idProducto => correo && dispatch({ tipo: 'ELIMINAR', idProducto }),
+    vaciarCarrito: () => correo && dispatch({ tipo: 'VACIAR' }),
   };
   return <CarritoContext.Provider value={valor}>{children}</CarritoContext.Provider>;
 }

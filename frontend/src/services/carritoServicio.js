@@ -3,7 +3,7 @@
 // Programa: carritoServicio.js
 // Descripción: Gestiona cantidades y persistencia local del carrito.
 // Requerimiento: RF05, RF06, RF07 / CU-07, CU-08, CU-11, CU-12
-// Fecha: 16 de noviembre de 2026
+// Fecha: 19 de noviembre de 2026
 
 // ===== Importaciones =====
 import { products } from '../data/products';
@@ -26,9 +26,10 @@ export function validarCantidad(idProducto, cantidad) {
 }
 
 // Recupera y valida datos locales; devuelve un arreglo sin IDs repetidos.
-export function cargarCarrito() {
+export function cargarCarrito(correo) {
+  if (!correo) { return []; }
   try {
-    const datos = JSON.parse(localStorage.getItem(CLAVE_CARRITO) || '[]');
+    const datos = JSON.parse(localStorage.getItem(`${CLAVE_CARRITO}:${correo}`) || '[]');
     if (!Array.isArray(datos)) {
       return [];
     }
@@ -47,9 +48,10 @@ export function cargarCarrito() {
 }
 
 // Recibe un arreglo; devuelve true si se guardó correctamente.
-export function guardarCarrito(items) {
+export function guardarCarrito(items, correo) {
+  if (!correo) { return true; }
   try {
-    localStorage.setItem(CLAVE_CARRITO, JSON.stringify(items));
+    localStorage.setItem(`${CLAVE_CARRITO}:${correo}`, JSON.stringify(items));
     return true;
   } catch {
     return false;
