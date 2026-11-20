@@ -1,4 +1,5 @@
-// Nombre: Oscar Armando Medina Gutiérrez// Materia: Verificación y Validación de Software
+// Nombre: Oscar Armando Medina Gutiérrez
+// Materia: Verificación y Validación de Software
 // Programa: ProductCard.jsx
 // Descripción: Presenta el producto y permite agregar una unidad al carrito.
 // Requerimiento: RF03, RF04, RF05
@@ -30,7 +31,7 @@ export default function ProductCard({ product, abrirDetalle }) {
   return (
     <article className="overflow-hidden rounded-2xl bg-white shadow-sm border border-rose-100">
       <div className="h-48 bg-rose-100 flex items-center justify-center">
-        {!hayErrorImagen ? <img src={product.imagen} alt={product.nombre}
+        {product.imagen && !hayErrorImagen ? <img src={product.imagen} alt={product.nombre}
           className="h-full w-full object-cover" onError={() => setHayErrorImagen(true)} />
           : <span className="text-rose-700 font-semibold">{product.categoria}</span>}
       </div>

@@ -1,4 +1,3 @@
-
 // Nombre: Oscar Armando Medina Gutiérrez
 // Materia: Verificación y Validación de Software
 // Programa: Catalogo.jsx
@@ -10,15 +9,12 @@
 import { useMemo, useState } from 'react';
 import ProductCard from '../components/ProductCard';
 import DetalleProducto from '../components/DetalleProducto';
-import { products } from '../data/products';
+import { useCatalogo } from '../hooks/useCatalogo';
 
 // ===== Constantes =====
 const CATEGORIA_TODAS = 'Todas';
 
-const CATEGORIAS = [
-  CATEGORIA_TODAS,
-  ...new Set(products.map(producto => producto.categoria)),
-];
+
 
 // ===== Funciones =====
 
@@ -28,6 +24,8 @@ const CATEGORIAS = [
  * Devuelve: página JSX del catálogo.
  */
 function Catalogo() {
+  const { productos, categorias } = useCatalogo();
+  const CATEGORIAS = [CATEGORIA_TODAS, ...categorias.map(item => item.nombre)];
   const [busqueda, setBusqueda] = useState('');
   const [categoria, setCategoria] = useState(CATEGORIA_TODAS);
 
@@ -38,7 +36,7 @@ function Catalogo() {
 
   // Filtra los productos cuando cambia la búsqueda o categoría.
   const filtrados = useMemo(() => {
-    return products.filter(producto => {
+    return productos.filter(producto => {
       const texto =
         `${producto.nombre} ${producto.descripcion}`
           .toLocaleLowerCase('es');
@@ -53,7 +51,7 @@ function Catalogo() {
 
       return coincideTexto && coincideCategoria;
     });
-  }, [busqueda, categoria]);
+  }, [busqueda, categoria, productos]);
 
   /**
    * Localiza el producto seleccionado y abre su detalle.
@@ -63,7 +61,7 @@ function Catalogo() {
   function abrirDetalle(idProducto) {
     setMensajeError('');
 
-    const productoEncontrado = products.find(
+    const productoEncontrado = productos.find(
       producto => producto.id === idProducto
     );
 

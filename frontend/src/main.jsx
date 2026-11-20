@@ -9,6 +9,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.jsx';
+import CatalogoProvider from './context/CatalogoProvider';
+import { useCatalogo } from './hooks/useCatalogo';
 import AuthProvider from './context/AuthProvider';
 import CarritoProvider from './context/CarritoProvider';
 import { useAuth } from './hooks/useAuth';
@@ -18,9 +20,19 @@ import './index.css';
 // Monta un carrito independiente para cada cliente.
 function AplicacionConCarrito() {
   const { usuario } = useAuth();
+  const { listo, cargando, error, actualizar } = useCatalogo();
+  if (!listo) {
+    return <main className="p-8" role="status">
+      {cargando ? 'Cargando catálogo...' : error}
+      {!cargando && <button className="ml-4 underline" onClick={actualizar}>Reintentar</button>}
+    </main>;
+  }
   const correo = usuario?.rol === ROLES.CLIENTE ? usuario.correo : null;
   return (
     <CarritoProvider key={correo ?? 'sin-cliente'} correo={correo}>
+      <button type="button" className="m-2 text-sm underline" onClick={actualizar}>
+        Actualizar catálogo e inventario
+      </button>
       <App />
     </CarritoProvider>
   );
@@ -29,7 +41,8 @@ function AplicacionConCarrito() {
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
-      <AuthProvider><AplicacionConCarrito /></AuthProvider>
+      <AuthProvider><CatalogoProvider><AplicacionConCarrito />
+      </CatalogoProvider></AuthProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

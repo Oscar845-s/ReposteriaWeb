@@ -6,7 +6,7 @@
 // Fecha: 19 de noviembre de 2026
 
 // ===== Importaciones =====
-import { products } from '../data/products';
+
 
 // ===== Constantes =====
 const CLAVE_CARRITO = 'dulce-hogar-carrito-v1';
@@ -14,13 +14,13 @@ const CANTIDAD_MINIMA = 1;
 
 // ===== Funciones =====
 // Recibe un ID; devuelve el producto registrado o undefined.
-export function obtenerProducto(idProducto) {
-  return products.find(producto => producto.id === idProducto);
+export function obtenerProducto(idProducto, productos) {
+  return productos.find(producto => producto.id === idProducto);
 }
 
 // Recibe ID y cantidad; devuelve si la cantidad cumple RF05 y CU-11.
-export function validarCantidad(idProducto, cantidad) {
-  const producto = obtenerProducto(idProducto);
+export function validarCantidad(idProducto, cantidad, productos) {
+  const producto = obtenerProducto(idProducto, productos);
   return Boolean(producto) && Number.isInteger(cantidad) &&
     cantidad >= CANTIDAD_MINIMA && cantidad <= producto.stock;
 }
@@ -35,7 +35,8 @@ export function cargarCarrito(correo) {
     }
     const registrados = new Set();
     return datos.filter(item => {
-      if (!item || !validarCantidad(item.idProducto, item.cantidad) ||
+      if (!item || !Number.isInteger(item.idProducto) ||
+          !Number.isInteger(item.cantidad) || item.cantidad < 1 ||
           registrados.has(item.idProducto)) {
         return false;
       }
@@ -59,9 +60,11 @@ export function guardarCarrito(items, correo) {
 }
 
 // Recibe items; devuelve detalles calculados con los precios actuales (RF07).
-export function obtenerDetalles(items) {
-  return items.map(item => {
-    const producto = obtenerProducto(item.idProducto);
-    return { ...item, producto, subtotal: producto.precio * item.cantidad };
+export function obtenerDetalles(items, productos) {
+  return items.flatMap(item => {
+    const producto = obtenerProducto(item.idProducto, productos);
+    if (!producto || !producto.stock) { return []; }
+    const cantidad = Math.min(item.cantidad, producto.stock);
+    return [{ ...item, cantidad, producto, subtotal: producto.precio * cantidad }];
   });
 }

@@ -1,4 +1,5 @@
-// Nombre: Oscar Armando Medina Gutiérrez// Materia: Verificación y Validación de Software
+// Nombre: Oscar Armando Medina Gutiérrez
+// Materia: Verificación y Validación de Software
 // Programa: DetalleProducto.jsx
 // Descripción: Muestra la información detallada de un producto.
 // Requerimiento: RF04, RF05 / CU-06, CU-07
@@ -136,7 +137,7 @@ function DetalleProducto({ producto, cerrarDetalle }) {
               bg-rose-100 rounded-xl overflow-hidden
               flex items-center justify-center"
           >
-            {!hayErrorImagen ? (
+            {producto.imagen && !hayErrorImagen ? (
               <img
                 src={producto.imagen}
                 alt={producto.nombre}
