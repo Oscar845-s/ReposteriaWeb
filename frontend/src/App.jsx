@@ -1,9 +1,9 @@
 // Nombre: Oscar Armando Medina Gutiérrez
 // Materia: Verificación y Validación de Software
 // Programa: App.jsx
-// Descripción: Conserva las rutas existentes y agrega protección por rol.
-// Requerimiento: RF01, RF02, RF18, RF05
-// Fecha: 19 de noviembre de 2026
+// Descripción: Rutas públicas y privadas por rol, incluido panel administrativo.
+// Requerimiento: RF01, RF02, RF05, RF08, RF10, RF11, RF13, RF18
+// Fecha: 20 de noviembre de 2026
 
 import { Routes, Route, Link } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
@@ -15,6 +15,7 @@ import Login from './pages/Login';
 import Registro from './pages/Registro';
 import NotFound from './pages/NotFound';
 import PanelRol from './pages/PanelRol';
+import Administracion from './pages/Administracion';
 import RutaProtegida from './components/RutaProtegida';
 import { ROLES } from './data/usuariosDemo';
 
@@ -31,7 +32,7 @@ export default function App() {
           <Route path="/pedidos" element={<Pedidos />} />
         </Route>
         <Route element={<RutaProtegida roles={[ROLES.ADMIN]} />}>
-          <Route path="/admin" element={<PanelRol />} />
+          <Route path="/admin" element={<Administracion />} />
         </Route>
         <Route element={<RutaProtegida roles={[ROLES.PRODUCCION]} />}>
           <Route path="/produccion" element={<PanelRol />} />
