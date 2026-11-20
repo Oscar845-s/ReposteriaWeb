@@ -9,6 +9,9 @@ import { useState } from 'react';
 import DetalleProducto from '../components/DetalleProducto';
 import { Link } from 'react-router-dom';
 import { Minus, Plus, Trash2, Eye } from 'lucide-react';
+import { consultarApi } from '../services/apiServicio';
+import { useAuth } from '../hooks/useAuth';
+import { useCatalogo } from '../hooks/useCatalogo';
 import { useCarrito } from '../hooks/useCarrito';
 
 // ===== Constantes =====
@@ -71,6 +74,24 @@ function FilaCarrito({ item, abrirDetalle }) {
 // No recibe argumentos; devuelve la página del carrito.
 export default function Carrito() {
   const { detalles, total, vaciarCarrito } = useCarrito();
+  const { token, cerrarSesion } = useAuth();
+  const { actualizar } = useCatalogo();
+  const [ocupado,setOcupado] = useState(false);
+  const [mensaje,setMensaje] = useState('');
+  async function confirmar() {
+    if(ocupado || !detalles.length) return;
+    setOcupado(true);setMensaje('');
+    try {
+      const pedido=await consultarApi('/pedidos','POST',{
+        items:detalles.map(({idProducto,cantidad})=>({idProducto,cantidad}))
+      },token);
+      vaciarCarrito();setMensaje(`Pedido ${pedido.idPedido} confirmado.`);actualizar();
+    } catch(error) {
+      setMensaje(error.message+' Si hubo un fallo de red, revisa el historial antes de reintentar.');
+      if(error.estado===401) cerrarSesion();
+      if(error.estado===409) actualizar();
+    } finally {setOcupado(false);}
+  }
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   return (
     <section className="max-w-6xl mx-auto px-5 py-14 space-y-6">
@@ -78,21 +99,22 @@ export default function Carrito() {
       {detalles.length === 0 ? (
         <div className="rounded-xl bg-white p-8 text-center">Tu carrito está vacío.</div>
       ) : (
-        <div className="space-y-4">
+        <fieldset disabled={ocupado} className="space-y-4">
           {detalles.map(item => <FilaCarrito key={item.idProducto} item={item}
              abrirDetalle={setProductoSeleccionado} />)}
           <button type="button" onClick={vaciarCarrito} className="text-red-700 underline">
             Vaciar carrito
           </button>
-        </div>
+        </fieldset>
       )}
       <div className="rounded-xl bg-white border border-rose-100 p-6 space-y-4">
         <p className="text-2xl font-bold text-rose-900" aria-live="polite">
           Total: {FORMATO_MONEDA.format(total)} MXN
         </p>
-        <button type="button" disabled className="w-full rounded-lg bg-rose-200 py-3
-          text-rose-900 cursor-not-allowed">Confirmar pedido (próximamente)</button>
+        <button type="button" disabled={ocupado || !detalles.length} onClick={confirmar} className="w-full rounded-lg bg-rose-700 text-white py-3 disabled:opacity-50">Confirmar pedido</button>
       </div>
+      {mensaje && <p role="status">{mensaje}</p>}
+      <Link to="/pedidos" className="text-rose-700 underline mr-4">Mis pedidos</Link>
       <Link to="/catalogo" className="text-rose-700 underline">Seguir comprando</Link>
       {productoSeleccionado && (
         <DetalleProducto key={productoSeleccionado.id} producto={productoSeleccionado}

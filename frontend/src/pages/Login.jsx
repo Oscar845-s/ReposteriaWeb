@@ -16,17 +16,19 @@ export default function Login() {
   const [correo, setCorreo] = useState('');
   const [clave, setClave] = useState('');
   const [error, setError] = useState('');
+  const [ocupado, setOcupado] = useState(false);
 
   // Procesa el formulario sin recargar la página.
-  function enviar(evento) {
+  async function enviar(evento) {
     evento.preventDefault();
-    setError(iniciarSesion(correo, clave));
+    setOcupado(true);
+    try { setError(await iniciarSesion(correo, clave)); } finally { setOcupado(false); }
   }
 
   if (usuario) {
     const destino = usuario.rol === ROLES.ADMIN ? '/admin' :
       usuario.rol === ROLES.PRODUCCION ? '/produccion' :
-      state?.desde === '/carrito' ? '/carrito' : '/catalogo';
+      ['/carrito','/pedidos'].includes(state?.desde) ? state.desde : '/catalogo';
     return <Navigate to={destino} replace />;
   }
 
@@ -43,7 +45,7 @@ export default function Login() {
             onChange={e => setClave(e.target.value)} className="border rounded p-3 w-full" />
         </label>
         {error && <p role="alert" className="text-red-700">{error}</p>}
-        <button className="bg-rose-700 text-white rounded-lg p-3 w-full">Entrar</button>
+        <button disabled={ocupado} className="bg-rose-700 text-white rounded-lg p-3 w-full">Entrar</button>
         <Link to="/registro" className="text-rose-700 underline">Crear cuenta</Link>
       </form>
     </section>

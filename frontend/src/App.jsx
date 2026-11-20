@@ -10,6 +10,7 @@ import MainLayout from './layouts/MainLayout';
 import Home from './pages/Home';
 import Catalogo from './pages/Catalogo';
 import Carrito from './pages/Carrito';
+import Pedidos from './pages/Pedidos';
 import Login from './pages/Login';
 import Registro from './pages/Registro';
 import NotFound from './pages/NotFound';
@@ -27,6 +28,7 @@ export default function App() {
         <Route path="/registro" element={<Registro />} />
         <Route element={<RutaProtegida roles={[ROLES.CLIENTE]} />}>
           <Route path="/carrito" element={<Carrito />} />
+          <Route path="/pedidos" element={<Pedidos />} />
         </Route>
         <Route element={<RutaProtegida roles={[ROLES.ADMIN]} />}>
           <Route path="/admin" element={<PanelRol />} />

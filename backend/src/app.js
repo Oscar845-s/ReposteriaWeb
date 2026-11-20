@@ -7,6 +7,8 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import authRutas from './routes/authRutas.js';
+import pedidoRutas from './routes/pedidoRutas.js';
 import rutas from './routes/catalogoRutas.js';
 import manejarError from './middleware/manejarError.js';
 import { obtenerConexion } from './config/database.js';
@@ -20,7 +22,7 @@ app.get('/api/salud', async (req, res) => {
   await conexion.request().query('SELECT 1 AS prueba');
   res.json({ estado: 'ok', baseDatos: 'conectada' });
 });
-app.use('/api', rutas);
+app.use('/api', rutas, authRutas, pedidoRutas);
 app.use((req, res) => res.status(404).json({ mensaje: 'Ruta no encontrada.' }));
 app.use(manejarError);
 export default app;
