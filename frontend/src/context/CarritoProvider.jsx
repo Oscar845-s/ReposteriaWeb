@@ -2,8 +2,8 @@
 // Materia: Verificación y Validación de Software
 // Programa: CarritoProvider.jsx
 // Descripción: Centraliza las operaciones y el estado del carrito.
-// Requerimiento: RF05, RF06, RF07
-// Fecha: 19 de noviembre de 2026
+// Requerimiento: RF05, RF06, RF07, RF08
+// Fecha: 20 de noviembre de 2026
 
 // ===== Importaciones =====
 import { useReducer, useEffect, useState } from 'react';
@@ -76,6 +76,17 @@ export default function CarritoProvider({ children, correo }) {
   const total = detalles.reduce((suma, item) => suma + item.subtotal, 0);
   const cantidadTotal = detalles.reduce((suma, item) => suma + item.cantidad, 0);
 
+  // Persiste el carrito vacío antes de actualizar el catálogo o desmontar el proveedor.
+  function vaciarCarrito() {
+    if (!correo) {
+      return true;
+    }
+    const guardado = guardarCarrito([], correo);
+    setHayErrorGuardado(!guardado);
+    dispatch({ tipo: 'VACIAR' });
+    return guardado;
+  }
+
   const valor = {
     detalles, total, cantidadTotal, mensaje: estado.mensaje, hayErrorGuardado,
     agregarAlCarrito: (idProducto, cantidad = 1) =>
@@ -83,7 +94,7 @@ export default function CarritoProvider({ children, correo }) {
     modificarCantidad: (idProducto, cantidad) =>
       correo && listo && dispatch({ tipo: 'MODIFICAR', idProducto, cantidad, productos }),
     eliminarProducto: idProducto => correo && listo && dispatch({ tipo: 'ELIMINAR', idProducto }),
-    vaciarCarrito: () => correo && listo && dispatch({ tipo: 'VACIAR' }),
+    vaciarCarrito,
   };
   return <CarritoContext.Provider value={valor}>{children}</CarritoContext.Provider>;
 }
