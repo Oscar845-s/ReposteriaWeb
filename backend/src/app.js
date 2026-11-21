@@ -14,6 +14,7 @@ import adminRutas from './routes/adminRutas.js';
 import rutas from './routes/catalogoRutas.js';
 import manejarError from './middleware/manejarError.js';
 import { obtenerConexion } from './config/database.js';
+import operacionesRutas from './routes/operacionesRutas.js';
 
 const app = express();
 app.disable('x-powered-by');
@@ -25,7 +26,7 @@ app.get('/api/salud', async (req, res) => {
   res.json({ estado: 'ok', baseDatos: 'conectada' });
 });
 app.use('/api/admin', adminRutas);
-app.use('/api', rutas, authRutas, pedidoRutas);
+app.use('/api', rutas, authRutas, pedidoRutas, operacionesRutas);
 app.use((req, res) => res.status(404).json({ mensaje: 'Ruta no encontrada.' }));
 app.use(manejarError);
 export default app;
