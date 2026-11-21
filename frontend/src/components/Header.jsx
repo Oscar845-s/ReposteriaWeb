@@ -42,7 +42,8 @@ export default function Header() {
           {usuario ? <>
             {usuario.rol === ROLES.ADMIN && <>
             <Link to="/admin">Administración</Link>
-            <Link to="/admin/pedidos">Pedidos</Link></>}
+            <Link to="/admin/pedidos">Pedidos</Link>
+            <Link to="/admin/reportes">Reportes</Link></>}
             {usuario.rol === ROLES.PRODUCCION && <Link to="/produccion">Producción</Link>}
             <span className="text-sm">{usuario.nombre}</span>
             <Link to="/" onClick={cerrarSesion} className="text-rose-700">Cerrar sesión</Link>

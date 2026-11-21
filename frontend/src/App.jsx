@@ -18,6 +18,7 @@ import Administracion from './pages/Administracion';
 import AdministracionPedidos from './pages/AdministracionPedidos';
 import Produccion from './pages/Produccion';
 import RutaProtegida from './components/RutaProtegida';
+import ReportesVentas from './pages/ReportesVentas';
 import { ROLES } from './data/usuariosDemo';
 
 export default function App() {
@@ -34,6 +35,7 @@ export default function App() {
         </Route>
         <Route element={<RutaProtegida roles={[ROLES.ADMIN]} />}>
           <Route path="/admin" element={<Administracion />} />
+          <Route path="/admin/reportes" element={<ReportesVentas />} />
           <Route path="/admin/pedidos" element={<AdministracionPedidos />} />
         </Route>
         <Route element={<RutaProtegida roles={[ROLES.PRODUCCION]} />}>
