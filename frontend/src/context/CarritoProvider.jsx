@@ -65,11 +65,18 @@ export default function CarritoProvider({ children, correo }) {
     }
   }, [listo, productos]);
   useEffect(() => {
+    let activo = true;
     if (listo) {
       const ajustados = obtenerDetalles(estado.items, productos)
         .map(({ idProducto, cantidad }) => ({ idProducto, cantidad }));
-      setHayErrorGuardado(!guardarCarrito(ajustados, correo));
+      // Guardar es una sincronización externa; diferimos la notificación de error.
+      // El guardado inmediato en vaciarCarrito() permanece intacto.
+      const guardado = guardarCarrito(ajustados, correo);
+      Promise.resolve().then(() => {
+        if (activo) setHayErrorGuardado(!guardado);
+      });
     }
+    return () => { activo = false; };
   }, [estado.items, correo, listo, productos]);
 
   const detalles = obtenerDetalles(estado.items, productos);

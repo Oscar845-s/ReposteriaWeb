@@ -66,7 +66,27 @@ export default function Administracion() {
     }
   }, [token, cerrarSesion]);
 
-  useEffect(() => { cargar(); }, [cargar]);
+  useEffect(() => {
+    let activo = true;
+    // Primera consulta: no invocar cargar() desde el efecto, pues establece
+    // el estado de carga sincrónicamente. La recarga manual sigue usando cargar().
+    Promise.all([
+      consultarApi('/admin/productos', 'GET', undefined, token),
+      consultarApi('/admin/categorias', 'GET', undefined, token),
+      consultarApi('/admin/inventario/movimientos', 'GET', undefined, token),
+    ]).then(([listaProductos, listaCategorias, listaMovimientos]) => {
+      if (!activo) return;
+      setProductos(listaProductos);
+      setCategorias(listaCategorias);
+      setMovimientos(listaMovimientos);
+      setError('');
+    }).catch(fallo => {
+      if (!activo) return;
+      setError(fallo.message);
+      if (fallo.estado === 401) cerrarSesion();
+    }).finally(() => { if (activo) setCargando(false); });
+    return () => { activo = false; };
+  }, [token, cerrarSesion]);
 
   // Ejecuta una operación, refresca datos y notifica al usuario.
   async function ejecutarOperacion(operacion, descripcion, refrescarCatalogo = false) {

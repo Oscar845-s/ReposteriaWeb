@@ -35,9 +35,18 @@ export default function Produccion() {
 
   useEffect(() => {
     let activo = true;
-    cargarPedidos(() => activo);
+    // La petición es asíncrona y evita actualizar estado al desmontar.
+    consultarApi('/operaciones/produccion', 'GET', undefined, token)
+      .then(datos => { if (activo) setPedidos(datos); })
+      .catch(fallo => {
+        if (activo) {
+          setError(fallo.message);
+          if (fallo.estado === 401) cerrarSesion();
+        }
+      })
+      .finally(() => { if (activo) setCargando(false); });
     return () => { activo = false; };
-  }, [cargarPedidos]);
+  }, [token, cerrarSesion]);
 
   async function marcarListo(idPedido) {
     if (procesando !== null) return;

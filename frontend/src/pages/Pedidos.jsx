@@ -18,7 +18,20 @@ export default function Pedidos(){
   async function cargar(){setOcupado(true);setError('');try{
     setPedidos(await consultarApi('/pedidos','GET',undefined,token));
   }catch(e){setError(e.message);if(e.estado===401)cerrarSesion();}finally{setOcupado(false);}}
-  useEffect(()=>{cargar();},[token]);
+  useEffect(() => {
+    let activo = true;
+    // La carga inicial no llama a una función que cambie el estado sincrónicamente.
+    consultarApi('/pedidos', 'GET', undefined, token)
+      .then(datos => { if (activo) setPedidos(datos); })
+      .catch(fallo => {
+        if (activo) {
+          setError(fallo.message);
+          if (fallo.estado === 401) cerrarSesion();
+        }
+      })
+      .finally(() => { if (activo) setOcupado(false); });
+    return () => { activo = false; };
+  }, [token, cerrarSesion]);
   async function cancelar(id){if(!window.confirm('¿Cancelar pedido?'))return;
     setOcupado(true);try{await consultarApi(`/pedidos/${id}/cancelar`,'PATCH',undefined,token);
       actualizar();await cargar();}catch(e){setError(e.message);if(e.estado===401)cerrarSesion();}
