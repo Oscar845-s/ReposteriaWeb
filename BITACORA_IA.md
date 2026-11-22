@@ -47,11 +47,3 @@ Documentar cómo se utilizó una herramienta de IA como apoyo en el análisis, i
 **¿Cómo detectaste una falla?** Comparando el momento real de una compra con `fechaPedido` y comprobando el rango correcto mediante una consulta SQL.
 
 **¿Cómo sabes que un cambio funciona?** Mediante una prueba reproducible, revisando respuesta de API, interfaz, consola y datos persistidos.
-
-## 6. Evidencias pendientes de completar
-
-- [ ] Añadir fecha y commit de cada intervención relevante.
-- [ ] Incorporar capturas o logs de las pruebas realizadas.
-- [ ] Confirmar resultado final del arreglo de reportes.
-- [ ] Registrar resultados reales de auditoría y compilación.
-- [ ] Verificar que ninguna evidencia contenga contraseñas, tokens o secretos.
